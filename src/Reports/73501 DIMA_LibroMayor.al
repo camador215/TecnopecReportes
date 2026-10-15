@@ -7,6 +7,7 @@ namespace Microsoft.Finance.GeneralLedger.Reports;
 using Microsoft.Finance.GeneralLedger.Account;
 using Microsoft.Finance.GeneralLedger.Ledger;
 using System.Utilities;
+using Microsoft.Foundation.Company;
 
 /// <summary>
 /// Generates detailed trial balance with individual transaction breakdowns for each G/L account.
@@ -39,6 +40,9 @@ report 73501 "DIMA Libro Mayor"
             {
             }
             column(CompanyName; COMPANYPROPERTY.DisplayName())
+            {
+            }
+            column(COMPANYLOGO; CompanyInfo.Picture)
             {
             }
             column(ExcludeBalanceOnly; ExcludeBalanceOnly)
@@ -236,7 +240,7 @@ report 73501 "DIMA Libro Mayor"
                     field(ExcludeGLAccsHaveBalanceOnly; ExcludeBalanceOnly)
                     {
                         ApplicationArea = Basic, Suite;
-                        Caption = 'Una página nueva para cada cuenta';
+                        Caption = 'Excluir solo cuentas con saldo a fecha';
                         MultiLine = true;
                         ToolTip = 'Especifica si no desea incluir en el informe los movimientos de las cuentas de contabilidad que tengan saldo, aunque no tengan un saldo de período durante el período seleccionado.';
                     }
@@ -270,10 +274,10 @@ report 73501 "DIMA Libro Mayor"
 
     labels
     {
-        PostingDateCaption = 'Posting Date';
-        DocNoCaption = 'Document No.';
-        DescCaption = 'Description';
-        VATAmtCaption = 'VAT Amount';
+        PostingDateCaption = 'Fecha registro';
+        DocNoCaption = 'Nº documento';
+        DescCaption = 'Descripción';
+        VATAmtCaption = 'Importe IVA';
         EntryNoCaption = 'Entry No.';
     }
 
@@ -284,6 +288,8 @@ report 73501 "DIMA Libro Mayor"
         "G/L Entry".SecurityFiltering(SecurityFilter::Filtered);
         GLFilter := "G/L Account".GetFilters();
         GLDateFilter := "G/L Account".GetFilter("Date Filter");
+        CompanyInfo.Get();
+        CompanyInfo.CalcFields(Picture);
 
         OnAfterOnPreReport("G/L Account", ExcludeBalanceOnly);
     end;
@@ -310,17 +316,18 @@ report 73501 "DIMA Libro Mayor"
         PrintReversedEntries: Boolean;
         PageGroupNo: Integer;
         ClosingEntry: Boolean;
-        DetailTrialBalCaptionLbl: Label 'DIMA Libro Mayor';
+        DetailTrialBalCaptionLbl: Label 'Libro Mayor';
         PageCaptionLbl: Label 'Pág';
-        BalanceCaptionLbl: Label 'This also includes general ledger accounts that only have a balance.';
-        PeriodCaptionLbl: Label 'This report also includes closing entries within the period.';
+        BalanceCaptionLbl: Label 'Esto también incluye las cuentas que solo tienen un saldo.';
+        PeriodCaptionLbl: Label 'Este informe también incluye movimientos de regularización dentro del periodo.';
         OnlyCorrectionsCaptionLbl: Label 'Only corrections are included.';
-        NetChangeCaptionLbl: Label 'Net Change';
+        NetChangeCaptionLbl: Label 'Saldo Periodo';
         GLEntryDebitAmtCaptionLbl: Label 'Debe';
         GLEntryCreditAmtCaptionLbl: Label 'Haber';
         GLBalCaptionLbl: Label 'Saldo';
         TelemetryCategoryTxt: Label 'Report', Locked = true;
         DetailedTrialBalanceReportGeneratedTxt: Label 'Detail Trial Balance report generated.', Locked = true;
+        CompanyInfo: Record "Company Information";
 
     protected var
         GLFilter: Text;

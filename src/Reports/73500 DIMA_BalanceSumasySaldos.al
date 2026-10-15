@@ -227,7 +227,6 @@ report 73500 "DIMA Balance de Sumas y Saldos"
         G_L_Account___Balance_at_Date_CaptionLbl: Label 'Debe';
         G_L_Account___Balance_at_Date__Control24CaptionLbl: Label 'Haber';
         CompanyInfo: Record "Company Information";
-        CompanyLogo: Record "Company Information" temporary;
 
     protected var
         GLFilter: Text;
